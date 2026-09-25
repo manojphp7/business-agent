@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, Text
 from sqlalchemy.sql import func
-
+from pgvector.sqlalchemy import Vector
 from backend.database import Base
 
 
@@ -23,3 +23,13 @@ class Order(Base):
     amount = Column(Numeric(10, 2), nullable=False)
     status = Column(String(50), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
+
+
+class DocumentEmbedding(Base):
+    __tablename__ = "document_embeddings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(255), nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    chunk_text = Column(Text, nullable=False)
+    embedding = Column(Vector(768), nullable=False)
