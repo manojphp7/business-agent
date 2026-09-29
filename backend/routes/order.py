@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from backend.database import SessionLocal
 from backend.models import Order
 from backend.schemas import OrderCreate, OrderResponse
-
+from backend.tools.business import check_order_status
+from backend.services.agent import run_agent,execute_agent
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -16,6 +17,9 @@ def get_db():
     finally:
         db.close()
 
+@router.get("/agent")
+def agent(query: str):
+    return execute_agent(query)
 
 @router.post("/", response_model=OrderResponse)
 def create_order(order: OrderCreate, db: Session = Depends(get_db)):
@@ -61,3 +65,12 @@ def update_order(
     db.refresh(existing_order)
 
     return existing_order
+
+@router.get("/{order_id}/status")
+def order_status(order_id: int):
+    db = SessionLocal()
+
+    try:
+        return check_order_status(db, order_id)
+    finally:
+        db.close()
