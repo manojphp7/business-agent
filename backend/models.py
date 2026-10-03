@@ -8,9 +8,8 @@ class Customer(Base):
     __tablename__ = "customers"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    email = Column(String(150), unique=True, nullable=False)
     phone = Column(String(20))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
 
 
@@ -33,3 +32,14 @@ class DocumentEmbedding(Base):
     chunk_index = Column(Integer, nullable=False)
     chunk_text = Column(Text, nullable=False)
     embedding = Column(Vector(768), nullable=False)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    email = Column(String(150), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    role = Column(String(20), nullable=False, default="CUSTOMER")
+    created_at = Column(DateTime, server_default=func.now())

@@ -5,7 +5,7 @@ from backend.services.embedding import create_embedding
 
 def search_similar_chunks(
     query: str,
-    limit: int = 5,
+    limit: int = 2,
     max_distance: float = 0.60
 ):
     query_embedding = create_embedding(query)

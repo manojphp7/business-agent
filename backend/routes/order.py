@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.database import SessionLocal
-from backend.models import Order
 from backend.schemas import OrderCreate, OrderResponse
 from backend.tools.business import check_order_status
 from backend.services.agent import run_agent,execute_agent
+from backend.models import Order, Customer
+from backend.services.dependencies import get_current_customer
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -38,12 +39,37 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     return new_order
 
 @router.get("/", response_model=list[OrderResponse])
-def get_orders(db: Session = Depends(get_db)):
-    return db.query(Order).all()
+def get_orders(
+    db: Session = Depends(get_db),
+    current_customer = Depends(get_current_customer)
+):
+    return db.query(Order).filter(
+        Order.customer_id == current_customer.id
+    ).all()
 
 @router.get("/{order_id}", response_model=OrderResponse)
-def get_order(order_id: int, db: Session = Depends(get_db)):
-    return db.query(Order).filter(Order.id == order_id).first()
+def get_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_customer = Depends(get_current_customer)
+):
+    order = db.query(Order).filter(
+        Order.id == order_id
+    ).first()
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="Order not found"
+        )
+
+    if order.customer_id != current_customer.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not allowed to access this order"
+        )
+
+    return order
 
 @router.put("/{order_id}", response_model=OrderResponse)
 def update_order(

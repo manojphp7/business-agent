@@ -4,11 +4,17 @@ import ollama
 def generate_answer(query: str, context: str):
 
     prompt = f"""
-You are an AI business support assistant.
+You are an AI business support assistant for AuraCart.
 
-Answer the user's question using only the information provided in the context.
+Your task is to answer the user's question using the provided company knowledge base.
 
-If the answer is not available in the context, say:
+IMPORTANT RULES:
+1. Use the information from the Context to answer the Question.
+2. If the answer is clearly present in the Context, ALWAYS provide the answer.
+3. Do not say "I don't have enough information" when the answer can be found in the Context.
+4. Do not use outside knowledge.
+5. Keep the answer short and direct.
+6. If the Context does not contain the answer, say exactly:
 "I don't have enough information in the company knowledge base."
 
 Context:
@@ -21,7 +27,7 @@ Answer:
 """
 
     response = ollama.chat(
-        model="gemma3:1b",
+        model="qwen2.5:3b",
         messages=[
             {
                 "role": "user",

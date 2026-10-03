@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.routes.customer import router as customer_router
 from backend.routes.order import router as order_router
 from backend.routes.document import router as document_router
+from backend.routes.auth import router as auth_router
 from backend.database import engine
 from backend import models
 app = FastAPI()
@@ -22,6 +23,7 @@ app.add_middleware(
 app.include_router(customer_router)
 app.include_router(order_router)
 app.include_router(document_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def home():
