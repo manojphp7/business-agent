@@ -6,12 +6,14 @@ app = FastAPI(title="Mock Ecommerce API")
 ORDERS = {
     1001: {
         "order_id": 1001,
+        "phone": "9876543210",
         "status": "Shipped",
         "product": "Red Shirt",
         "amount": 999
     },
     1002: {
         "order_id": 1002,
+        "phone": "9876543210",
         "status": "Delivered",
         "product": "Blue Jeans",
         "amount": 1499
@@ -54,6 +56,7 @@ def home():
 @app.get("/orders/{order_id}")
 def get_order(
     order_id: int,
+    phone: str,
     authorization: str | None = Header(default=None)
 ):
     verify_api_key(authorization)
@@ -66,7 +69,17 @@ def get_order(
             detail="Order not found"
         )
 
-    return order
+    # Verify registered phone number
+    if order["phone"] != phone:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid phone number for this order"
+        )
+
+    return {
+        "order_id": order_id,
+        "status": order["status"]
+    }
 
 
 @app.get("/products/{product_id}")
